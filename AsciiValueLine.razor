@@ -1,0 +1,38 @@
+﻿<span class="hxdp-asciivalue-line">
+    <CascadingValue Value="@Parent">
+        @for (var i = 0; i < Data.Length; ++i)
+        {
+            <AsciiValue Value="@Data[i]" Coordinate="(Index, i)" @ref="AsciiValueRef" />
+        }
+    </CascadingValue>
+</span>
+
+@code {
+    [Parameter]
+    public byte[] Data { get; set; } = Array.Empty<byte>();
+
+    public List<AsciiValue> AsciiValues { get; } = new();
+    AsciiValue AsciiValueRef
+    {
+        set
+        {
+            AsciiValues.Add(value);
+        }
+    }
+
+    [Parameter]
+    public int Index { get; set; } = 0;
+
+    [Parameter]
+    public HexDump? Parent { get; set; }
+
+    internal void HighlightAsciiValue(int Coordinate)
+    {
+        AsciiValues[Coordinate].Highlight();
+    }
+
+    internal void UnhighlightAsciiValue(int Coordinate)
+    {
+        AsciiValues[Coordinate].Unhighlight();
+    }
+}

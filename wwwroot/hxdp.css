@@ -1,0 +1,60 @@
+﻿.hxdp-row {
+    display: flex;
+    font-family: 'Cascadia Code', Consolas, 'Courier New', monospace;
+    font-size: small;
+    overflow: auto;
+}
+
+.hxdp-col-line {
+    flex: 20%;
+    padding-right: 7px;
+    border-right: 2px solid #7f7f7f;
+    text-align: right;
+    color: steelblue;
+    user-select: none;
+}
+
+.hxdp-col-hex {
+    flex: 50%;
+    padding: 0 7px 0 7px;
+    border-right: 2px solid #7f7f7f;
+}
+
+.hxdp-col-ascii {
+    padding: 0 7px 0 7px;
+    flex: 30%;
+}
+
+.hxdp-linenum {
+    width: 100%;
+    display: block;
+}
+
+.hxdp-hexvalue {
+    margin: 0 3px 0 3px;
+    user-select: none;
+}
+
+.hxdp-hexvalue-splitter {
+    margin: 0 3px 0 3px;
+}
+
+.hxdp-hexvalue-line {
+    width: 100%;
+    display: block;
+}
+
+.hxdp-asciivalue {
+    margin: 0 1px 0 1px;
+    user-select: none;
+}
+
+.hxdp-asciivalue-line {
+    width: 100%;
+    display: block;
+}
+
+.hxdp-highlight {
+    background: steelblue;
+    color: white;
+}

@@ -1,0 +1,49 @@
+﻿<span class="@itemClass" @onmouseover="OnMouseOver" @onmouseout="OnMouseOut">@AsciiFromByte(Value)</span>
+
+@code {
+    string itemClass = "hxdp-asciivalue";
+
+    [Parameter]
+    public byte Value { get; set; } = 0x00;
+
+    [Parameter]
+    public (int, int) Coordinate { get; set; } = (0, 0);
+
+    char AsciiFromByte(byte b)
+    {
+        if (b < 0x21 || b > 0x7E)
+        {
+            return '.';
+        }
+        return (char)b;
+    }
+
+    [CascadingParameter]
+    public HexDump? Parent { get; set; }
+
+    void OnMouseOver(MouseEventArgs args)
+    {
+        Highlight();
+        Parent?.HighlightHexValue(Coordinate);
+        StateHasChanged();
+    }
+
+    void OnMouseOut(MouseEventArgs args)
+    {
+        Unhighlight();
+        Parent?.UnhighlightHexValue(Coordinate);
+        StateHasChanged();
+    }
+
+    internal void Highlight()
+    {
+        itemClass = "hxdp-asciivalue hxdp-highlight";
+        StateHasChanged();
+    }
+
+    internal void Unhighlight()
+    {
+        itemClass = "hxdp-asciivalue";
+        StateHasChanged();
+    }
+}

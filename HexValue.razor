@@ -1,0 +1,40 @@
+﻿<span class="@itemClass" @onmouseover="OnMouseOver" @onmouseout="OnMouseOut">@Value.ToString("X2")</span>
+
+@code {
+    string itemClass = "hxdp-hexvalue";
+
+    [Parameter]
+    public byte Value { get; set; } = 0x00;
+
+    [Parameter]
+    public (int, int) Coordinate { get; set; } = (0, 0);
+
+    [CascadingParameter]
+    public HexDump? Parent { get; set; }
+
+    void OnMouseOver(MouseEventArgs args)
+    {
+        Highlight();
+        Parent?.HighlightAsciiValue(Coordinate);
+        StateHasChanged();      // It appears this is needed both here and in (Un)Highlight() to make Hex and Ascii highlight in sync
+    }
+
+    void OnMouseOut(MouseEventArgs args)
+    {
+        Unhighlight();
+        Parent?.UnhighlightAsciiValue(Coordinate);
+        StateHasChanged();
+    }
+
+    internal void Highlight()
+    {
+        itemClass = "hxdp-hexvalue hxdp-highlight";
+        StateHasChanged();
+    }
+
+    internal void Unhighlight()
+    {
+        itemClass = "hxdp-hexvalue";
+        StateHasChanged();
+    }
+}

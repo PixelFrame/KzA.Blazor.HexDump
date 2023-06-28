@@ -1,0 +1,42 @@
+﻿<span class="hxdp-hexvalue-line">
+    <CascadingValue Value="@Parent">
+        @for (var i = 0; i < Data.Length; i++)
+        {
+            <HexValue Value="@Data[i]" Coordinate="(Index, i)" @ref="HexValueRef" />
+            if (i == 7)
+            {
+                <span class="hxdp-hexvalue-splitter"></span>
+            }
+        }
+    </CascadingValue>
+</span>
+
+@code {
+    [Parameter]
+    public byte[] Data { get; set; } = Array.Empty<byte>();
+
+    public List<HexValue> HexValues { get; } = new();
+    HexValue HexValueRef
+    {
+        set
+        {
+            HexValues.Add(value);
+        }
+    }
+
+    [Parameter]
+    public int Index { get; set; } = 0;
+
+    [Parameter]
+    public HexDump? Parent { get; set; }
+
+    internal void HighlightHexValue(int Coordinate)
+    {
+        HexValues[Coordinate].Highlight();
+    }
+
+    internal void UnhighlightHexValue(int Coordinate)
+    {
+        HexValues[Coordinate].Unhighlight();
+    }
+}

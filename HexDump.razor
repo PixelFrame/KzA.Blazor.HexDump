@@ -1,0 +1,84 @@
+﻿<div class="hxdp-row">
+    <div class="hxdp-col-line">
+        @LineNumberFragment
+    </div>
+    <div class="hxdp-col-hex">
+        @HexValueFragment
+    </div>
+    <div class="hxdp-col-ascii">
+        @AsciiValueFragment
+    </div>
+</div>
+
+@code
+{
+    [Parameter]
+    public byte[] Data { get; set; } = Array.Empty<byte>();
+
+    RenderFragment LineNumberFragment = @<br>;
+    RenderFragment HexValueFragment = @<br>;
+    RenderFragment AsciiValueFragment = @<br>;
+
+    List<HexValueLine> HexValueLines = new();
+    List<AsciiValueLine> AsciiValueLines = new();
+
+    protected override void OnParametersSet()
+    {
+        var linecnt = (int)Math.Ceiling(Data.Length / 16.0);
+        LineNumberFragment = new RenderFragment(builder =>
+        {
+            for (int i = 0; i < linecnt; i++)
+            {
+                builder.OpenComponent<LineNumber>(0);
+                builder.AddAttribute(1, "Value", (uint)(i * 16));
+                builder.CloseComponent();
+            }
+        });
+
+        HexValueFragment = new RenderFragment(builder =>
+        {
+            for (int i = 0; i < linecnt; i++)
+            {
+                builder.OpenComponent<HexValueLine>(0);
+                builder.AddAttribute(1, "Data", Data.Skip(i * 16).Take(16).ToArray());
+                builder.AddAttribute(2, "Index", i);
+                builder.AddAttribute(3, "Parent", this);
+                builder.AddComponentReferenceCapture(4, hvl => HexValueLines.Add((HexValueLine)hvl));
+                builder.CloseComponent();
+            }
+        });
+
+        AsciiValueFragment = new RenderFragment(builder =>
+        {
+            for (int i = 0; i < linecnt; i++)
+            {
+                builder.OpenComponent<AsciiValueLine>(0);
+                builder.AddAttribute(1, "Data", Data.Skip(i * 16).Take(16).ToArray());
+                builder.AddAttribute(2, "Index", i);
+                builder.AddAttribute(3, "Parent", this);
+                builder.AddComponentReferenceCapture(4, avl => AsciiValueLines.Add((AsciiValueLine)avl));
+                builder.CloseComponent();
+            }
+        });
+    }
+
+    internal void HighlightHexValue((int, int) Coordinate)
+    {
+        HexValueLines[Coordinate.Item1].HighlightHexValue(Coordinate.Item2);
+    }
+
+    internal void UnhighlightHexValue((int, int) Coordinate)
+    {
+        HexValueLines[Coordinate.Item1].UnhighlightHexValue(Coordinate.Item2);
+    }
+
+    internal void HighlightAsciiValue((int, int) Coordinate)
+    {
+        AsciiValueLines[Coordinate.Item1].HighlightAsciiValue(Coordinate.Item2);
+    }
+
+    internal void UnhighlightAsciiValue((int, int) Coordinate)
+    {
+        AsciiValueLines[Coordinate.Item1].UnhighlightAsciiValue(Coordinate.Item2);
+    }
+}
