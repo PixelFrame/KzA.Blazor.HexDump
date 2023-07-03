@@ -2,7 +2,7 @@
     <CascadingValue Value="@Parent">
         @for (var i = 0; i < Data.Length; i++)
         {
-            <HexValue Value="@Data[i]" Coordinate="(Index, i)" @ref="HexValueRef" />
+            <HexValue Value="@Data[i]" Coordinate="(i, Index)" @ref="HexValueRef" />
             if (i == 7)
             {
                 <span class="hxdp-hexvalue-splitter"></span>
@@ -29,6 +29,17 @@
 
     [Parameter]
     public HexDump? Parent { get; set; }
+
+
+    internal void HoverHexValue(int Coordinate)
+    {
+        HexValues[Coordinate].Hover();
+    }
+
+    internal void UnhoverHexValue(int Coordinate)
+    {
+        HexValues[Coordinate].Unhover();
+    }
 
     internal void HighlightHexValue(int Coordinate)
     {

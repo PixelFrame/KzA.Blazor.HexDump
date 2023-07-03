@@ -1,13 +1,23 @@
-﻿<span class="@itemClass" @onmouseover="OnMouseOver" @onmouseout="OnMouseOut">@AsciiFromByte(Value)</span>
+﻿<span class="@(string.Join(" ", itemClass))"
+@onmouseover="OnMouseOver"
+@onmouseout="OnMouseOut"
+@onmousedown="OnMouseDown"
+@onmouseup="OnMouseUp">
+    @AsciiFromByte(Value)
+</span>
 
 @code {
-    string itemClass = "hxdp-asciivalue";
+    List<string> itemClass = new() { "hxdp-asciivalue" };
+    bool IsHighlighted = false;
 
     [Parameter]
     public byte Value { get; set; } = 0x00;
 
     [Parameter]
     public (int, int) Coordinate { get; set; } = (0, 0);
+
+    [CascadingParameter]
+    public HexDump? Parent { get; set; }
 
     char AsciiFromByte(byte b)
     {
@@ -18,32 +28,58 @@
         return (char)b;
     }
 
-    [CascadingParameter]
-    public HexDump? Parent { get; set; }
-
     void OnMouseOver(MouseEventArgs args)
     {
-        Highlight();
-        Parent?.HighlightHexValue(Coordinate);
+        Hover();
+        Parent?.HoverHexValue(Coordinate);
+        if (Parent != null) Parent.LastHoveredAscii = Coordinate;
         StateHasChanged();
     }
 
     void OnMouseOut(MouseEventArgs args)
     {
-        Unhighlight();
-        Parent?.UnhighlightHexValue(Coordinate);
+        Unhover();
+        Parent?.UnhoverHexValue(Coordinate);
         StateHasChanged();
+    }
+
+    void OnMouseDown(MouseEventArgs args)
+    {
+        if (Parent == null) return;
+        Parent.AsciiClicked();
+        Parent.StartCoordinate = Coordinate;
+    }
+
+    void OnMouseUp(MouseEventArgs args)
+    {
+        if (Parent == null) return;
+        if (Parent.ClickedItemType != 2) return;
+        Parent.StopCoordinate = Coordinate;
     }
 
     internal void Highlight()
     {
-        itemClass = "hxdp-asciivalue hxdp-highlight";
-        StateHasChanged();
+        if (IsHighlighted) return;
+        itemClass.Add("hxdp-highlight");
+        IsHighlighted = true;
     }
 
     internal void Unhighlight()
     {
-        itemClass = "hxdp-asciivalue";
+        if (!IsHighlighted) return;
+        itemClass.Remove("hxdp-highlight");
+        IsHighlighted = false;
+    }
+
+    internal void Hover()
+    {
+        itemClass.Add("hxdp-hover");
+        StateHasChanged();
+    }
+
+    internal void Unhover()
+    {
+        itemClass.Remove("hxdp-hover");
         StateHasChanged();
     }
 }

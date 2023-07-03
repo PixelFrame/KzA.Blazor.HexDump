@@ -31,8 +31,10 @@
 }
 
 .hxdp-hexvalue {
-    margin: 0 3px 0 3px;
+    padding: 0 3px 0 3px;
     user-select: none;
+    box-sizing: border-box;
+    border: 1px solid transparent;
 }
 
 .hxdp-hexvalue-splitter {
@@ -45,8 +47,10 @@
 }
 
 .hxdp-asciivalue {
-    margin: 0 1px 0 1px;
+    padding: 0 1px 0 1px;
     user-select: none;
+    box-sizing: border-box;
+    border: 1px solid transparent;
 }
 
 .hxdp-asciivalue-line {
@@ -57,4 +61,8 @@
 .hxdp-highlight {
     background: steelblue;
     color: white;
+}
+
+.hxdp-hover {
+    border: 1px solid #7f7f7f;
 }

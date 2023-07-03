@@ -2,7 +2,7 @@
     <CascadingValue Value="@Parent">
         @for (var i = 0; i < Data.Length; ++i)
         {
-            <AsciiValue Value="@Data[i]" Coordinate="(Index, i)" @ref="AsciiValueRef" />
+            <AsciiValue Value="@Data[i]" Coordinate="(i, Index)" @ref="AsciiValueRef" />
         }
     </CascadingValue>
 </span>
@@ -25,6 +25,16 @@
 
     [Parameter]
     public HexDump? Parent { get; set; }
+
+    internal void HoverAsciiValue(int Coordinate)
+    {
+        AsciiValues[Coordinate].Hover();
+    }
+
+    internal void UnhoverAsciiValue(int Coordinate)
+    {
+        AsciiValues[Coordinate].Unhover();
+    }
 
     internal void HighlightAsciiValue(int Coordinate)
     {

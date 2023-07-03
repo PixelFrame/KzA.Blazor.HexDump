@@ -8,7 +8,7 @@ A simple Blazor component to display a hex dump of a byte array.
 
 ## TODO
 
-- [] Area selection
-- [] Copy to clipboard
-- [] Value of selected area
-- [] Styling
+- [x] Area selection
+- [ ] Copy to clipboard
+- [ ] Value of selected area
+- [ ] Styling

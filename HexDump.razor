@@ -1,4 +1,4 @@
-﻿<div class="hxdp-row">
+﻿<div class="hxdp-row" @onmouseup="OnMouseUp" @onmousemove="OnMouseMove">
     <div class="hxdp-col-line">
         @LineNumberFragment
     </div>
@@ -15,12 +15,31 @@
     [Parameter]
     public byte[] Data { get; set; } = Array.Empty<byte>();
 
+    [Parameter]
+    public bool BlockSelection { get; set; } = true;
+
     RenderFragment LineNumberFragment = @<br>;
     RenderFragment HexValueFragment = @<br>;
     RenderFragment AsciiValueFragment = @<br>;
 
     List<HexValueLine> HexValueLines = new();
     List<AsciiValueLine> AsciiValueLines = new();
+    internal int ClickedItemType = 1;
+    internal void HexClicked()
+    {
+        ClickedItemType = 1;
+        StopCoordinate = (-1, -1);
+    }
+    internal void AsciiClicked()
+    {
+        ClickedItemType = 2;
+        StopCoordinate = (-1, -1);
+    }
+    internal (int, int) LastHoveredHex = (-1, -1);
+    internal (int, int) LastHoveredAscii = (-1, -1);
+    internal (int, int) StartCoordinate = (-1, -1);
+    internal (int, int) StopCoordinate = (-1, -1);
+    List<int> SelectedValues = new();
 
     protected override void OnParametersSet()
     {
@@ -62,23 +81,100 @@
         });
     }
 
-    internal void HighlightHexValue((int, int) Coordinate)
+    internal void HoverHexValue((int, int) Coordinate)
     {
-        HexValueLines[Coordinate.Item1].HighlightHexValue(Coordinate.Item2);
+        HexValueLines[Coordinate.Item2].HoverHexValue(Coordinate.Item1);
     }
 
-    internal void UnhighlightHexValue((int, int) Coordinate)
+    internal void UnhoverHexValue((int, int) Coordinate)
     {
-        HexValueLines[Coordinate.Item1].UnhighlightHexValue(Coordinate.Item2);
+        HexValueLines[Coordinate.Item2].UnhoverHexValue(Coordinate.Item1);
     }
 
-    internal void HighlightAsciiValue((int, int) Coordinate)
+    internal void HoverAsciiValue((int, int) Coordinate)
     {
-        AsciiValueLines[Coordinate.Item1].HighlightAsciiValue(Coordinate.Item2);
+        AsciiValueLines[Coordinate.Item2].HoverAsciiValue(Coordinate.Item1);
     }
 
-    internal void UnhighlightAsciiValue((int, int) Coordinate)
+    internal void UnhoverAsciiValue((int, int) Coordinate)
     {
-        AsciiValueLines[Coordinate.Item1].UnhighlightAsciiValue(Coordinate.Item2);
+        AsciiValueLines[Coordinate.Item2].UnhoverAsciiValue(Coordinate.Item1);
+    }
+
+    private async Task OnMouseUp(MouseEventArgs args)
+    {
+        if (StopCoordinate.Item1 == -1)
+        {
+            StopCoordinate = ClickedItemType == 1 ? LastHoveredHex : LastHoveredAscii;
+        }
+        CalcPoints(StartCoordinate, StopCoordinate);
+        await UpdateSelection();
+    }
+
+    private async Task OnMouseMove(MouseEventArgs args)
+    {
+        if (args.Buttons == 1)
+        {
+            if (StartCoordinate.Item1 == -1)
+            {
+                StartCoordinate = ClickedItemType == 1 ? LastHoveredHex : LastHoveredAscii;
+            }
+            StopCoordinate = ClickedItemType == 1 ? LastHoveredHex : LastHoveredAscii;
+            CalcPoints(StartCoordinate, StopCoordinate);
+            await UpdateSelection();
+        }
+    }
+
+    private void CalcPoints((int, int) CoordinateA, (int, int) CoordinateB)
+    {
+        SelectedValues.Clear();
+
+        if (BlockSelection)
+        {
+            var X1 = CoordinateA.Item1 > CoordinateB.Item1 ? CoordinateB.Item1 : CoordinateA.Item1;
+            var Y1 = CoordinateA.Item2 > CoordinateB.Item2 ? CoordinateB.Item2 : CoordinateA.Item2;
+            var X2 = CoordinateA.Item1 > CoordinateB.Item1 ? CoordinateA.Item1 : CoordinateB.Item1;
+            var Y2 = CoordinateA.Item2 > CoordinateB.Item2 ? CoordinateA.Item2 : CoordinateB.Item2;
+            for (var x = X1; x <= X2; ++x)
+            {
+                for (var y = Y1; y <= Y2; ++y)
+                {
+                    SelectedValues.Add(y * 16 + x);
+                }
+            }
+        }
+        else
+        {
+            var IDX1 = CoordinateA.Item2 * 16 + CoordinateA.Item1;
+            var IDX2 = CoordinateB.Item2 * 16 + CoordinateB.Item1;
+            if (IDX1 > IDX2)
+            {
+                var tmp = IDX1;
+                IDX1 = IDX2;
+                IDX2 = tmp;
+            }
+            for (var idx = IDX1; idx <= IDX2; ++idx)
+            {
+                SelectedValues.Add(idx);
+            }
+        }
+    }
+
+    private async Task UpdateSelection()
+    {
+        for (var idx = 0; idx < Data.Length; ++idx)
+        {
+            if (SelectedValues.Contains(idx))
+            {
+                HexValueLines[idx / 16].HighlightHexValue(idx % 16);
+                AsciiValueLines[idx / 16].HighlightAsciiValue(idx % 16);
+            }
+            else
+            {
+                HexValueLines[idx / 16].UnhighlightHexValue(idx % 16);
+                AsciiValueLines[idx / 16].UnhighlightAsciiValue(idx % 16);
+            }
+        }
+        await InvokeAsync(StateHasChanged);
     }
 }

@@ -1,7 +1,14 @@
-﻿<span class="@itemClass" @onmouseover="OnMouseOver" @onmouseout="OnMouseOut">@Value.ToString("X2")</span>
+﻿<span class="@(string.Join(" ", itemClass))"
+@onmouseover="OnMouseOver"
+@onmouseout="OnMouseOut"
+@onmousedown="OnMouseDown"
+@onmouseup="OnMouseUp">
+    @Value.ToString("X2")
+</span>
 
 @code {
-    string itemClass = "hxdp-hexvalue";
+    List<string> itemClass = new() { "hxdp-hexvalue" };
+    bool IsHighlighted = false;
 
     [Parameter]
     public byte Value { get; set; } = 0x00;
@@ -14,27 +21,56 @@
 
     void OnMouseOver(MouseEventArgs args)
     {
-        Highlight();
-        Parent?.HighlightAsciiValue(Coordinate);
-        StateHasChanged();      // It appears this is needed both here and in (Un)Highlight() to make Hex and Ascii highlight in sync
+        Hover();
+        Parent?.HoverAsciiValue(Coordinate);
+        if (Parent != null) Parent.LastHoveredHex = Coordinate;
+        StateHasChanged();
     }
 
     void OnMouseOut(MouseEventArgs args)
     {
-        Unhighlight();
-        Parent?.UnhighlightAsciiValue(Coordinate);
+        Unhover();
+        Parent?.UnhoverAsciiValue(Coordinate);
         StateHasChanged();
+    }
+
+    void OnMouseDown(MouseEventArgs args)
+    {
+        if(Parent==null) return;
+        Parent.HexClicked();
+        Parent.StartCoordinate = Coordinate;
+    }
+
+    void OnMouseUp(MouseEventArgs args)
+    {
+        if (Parent == null) return;
+        if (Parent.ClickedItemType != 1) return;
+        Parent.StopCoordinate = Coordinate;
     }
 
     internal void Highlight()
     {
-        itemClass = "hxdp-hexvalue hxdp-highlight";
-        StateHasChanged();
+        if (IsHighlighted) return;
+        itemClass.Add("hxdp-highlight");
+        IsHighlighted = true;
     }
 
     internal void Unhighlight()
     {
-        itemClass = "hxdp-hexvalue";
+        if (!IsHighlighted) return;
+        itemClass.Remove("hxdp-highlight");
+        IsHighlighted = false;
+    }
+
+    internal void Hover()
+    {
+        itemClass.Add("hxdp-hover");
+        StateHasChanged();
+    }
+
+    internal void Unhover()
+    {
+        itemClass.Remove("hxdp-hover");
         StateHasChanged();
     }
 }
