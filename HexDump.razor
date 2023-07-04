@@ -1,13 +1,33 @@
-﻿<div class="hxdp-row" @onmouseup="OnMouseUp" @onmousemove="OnMouseMove">
-    <div class="hxdp-col-line">
-        @LineNumberFragment
+﻿<div class="hxdp">
+    @if (DataInspectionPosition == DataInspectionPosition.Top)
+    {
+        <ValueInspection Data="@SelectedData" Position="DataInspectionPosition.Top" />
+    }
+    <div class="hxdp-row">
+        @if (DataInspectionPosition == DataInspectionPosition.Left)
+        {
+            <ValueInspection Data="@SelectedData" Position="DataInspectionPosition.Left" />
+        }
+        <div class="hxdp-main" @onmouseup="OnMouseUp" @onmousemove="OnMouseMove">
+            <div class="hxdp-col-line">
+                @LineNumberFragment
+            </div>
+            <div class="hxdp-col-hex">
+                @HexValueFragment
+            </div>
+            <div class="hxdp-col-ascii">
+                @AsciiValueFragment
+            </div>
+        </div>
+        @if (DataInspectionPosition == DataInspectionPosition.Right)
+        {
+            <ValueInspection Data="@SelectedData" Position="@DataInspectionPosition.Right" />
+        }
     </div>
-    <div class="hxdp-col-hex">
-        @HexValueFragment
-    </div>
-    <div class="hxdp-col-ascii">
-        @AsciiValueFragment
-    </div>
+    @if (DataInspectionPosition == DataInspectionPosition.Bottom)
+    {
+        <ValueInspection Data="@SelectedData" Position="DataInspectionPosition.Bottom" />
+    }
 </div>
 
 @code
@@ -17,6 +37,9 @@
 
     [Parameter]
     public bool BlockSelection { get; set; } = true;
+
+    [Parameter]
+    public DataInspectionPosition DataInspectionPosition { get; set; } = DataInspectionPosition.Right;
 
     RenderFragment LineNumberFragment = @<br>;
     RenderFragment HexValueFragment = @<br>;
@@ -39,7 +62,8 @@
     internal (int, int) LastHoveredAscii = (-1, -1);
     internal (int, int) StartCoordinate = (-1, -1);
     internal (int, int) StopCoordinate = (-1, -1);
-    List<int> SelectedValues = new();
+    List<int> SelectedIndices = new();
+    byte[] SelectedData = Array.Empty<byte>();
 
     protected override void OnParametersSet()
     {
@@ -127,7 +151,7 @@
 
     private void CalcPoints((int, int) CoordinateA, (int, int) CoordinateB)
     {
-        SelectedValues.Clear();
+        SelectedIndices.Clear();
 
         if (BlockSelection)
         {
@@ -135,11 +159,12 @@
             var Y1 = CoordinateA.Item2 > CoordinateB.Item2 ? CoordinateB.Item2 : CoordinateA.Item2;
             var X2 = CoordinateA.Item1 > CoordinateB.Item1 ? CoordinateA.Item1 : CoordinateB.Item1;
             var Y2 = CoordinateA.Item2 > CoordinateB.Item2 ? CoordinateA.Item2 : CoordinateB.Item2;
-            for (var x = X1; x <= X2; ++x)
+
+            for (var y = Y1; y <= Y2; ++y)
             {
-                for (var y = Y1; y <= Y2; ++y)
+                for (var x = X1; x <= X2; ++x)
                 {
-                    SelectedValues.Add(y * 16 + x);
+                    SelectedIndices.Add(y * 16 + x);
                 }
             }
         }
@@ -155,7 +180,7 @@
             }
             for (var idx = IDX1; idx <= IDX2; ++idx)
             {
-                SelectedValues.Add(idx);
+                SelectedIndices.Add(idx);
             }
         }
     }
@@ -164,7 +189,7 @@
     {
         for (var idx = 0; idx < Data.Length; ++idx)
         {
-            if (SelectedValues.Contains(idx))
+            if (SelectedIndices.Contains(idx))
             {
                 HexValueLines[idx / 16].HighlightHexValue(idx % 16);
                 AsciiValueLines[idx / 16].HighlightAsciiValue(idx % 16);
@@ -175,6 +200,7 @@
                 AsciiValueLines[idx / 16].UnhighlightAsciiValue(idx % 16);
             }
         }
+        SelectedData = SelectedIndices.Select(v => Data[v]).ToArray();
         await InvokeAsync(StateHasChanged);
     }
 
@@ -234,7 +260,7 @@
     public string SelectionToString(bool IsHexOrAscii)
     {
         var sb = new System.Text.StringBuilder();
-        foreach (var idx in SelectedValues)
+        foreach (var idx in SelectedIndices)
         {
             if (IsHexOrAscii) sb.Append(Data[idx].ToString("X2"));
             else sb.Append(Helper.AsciiFromByte(Data[idx]));

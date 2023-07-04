@@ -11,4 +11,13 @@
             return (char)b;
         }
     }
+
+    public enum DataInspectionPosition
+    {
+        Hidden,
+        Left,
+        Right,
+        Top,
+        Bottom,
+    }
 }

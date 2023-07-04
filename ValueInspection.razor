@@ -1,0 +1,178 @@
+﻿@using System.Buffers.Binary
+
+<table class="hxdp-inspect-table" style="@style">
+    <thead>
+        <tr>
+            <th>Data Inspect</th>
+        </tr>
+        <tr>
+            <td>Type</td>
+            <td>Value (Big Endian)</td>
+            <td>Value (Little Endian)</td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Binary</td>
+            <td>@bin</td>
+        </tr>
+        <tr>
+            <td>Octal</td>
+            <td>@oct</td>
+        </tr>
+        <tr>
+            <td>UInt8</td>
+            <td>@ui8</td>
+        </tr>
+        <tr>
+            <td>Int8</td>
+            <td>@i8</td>
+        </tr>
+        <tr>
+            <td>UInt16</td>
+            <td>@ui16</td>
+            <td>@ui16le</td>
+        </tr>
+        <tr>
+            <td>Int16</td>
+            <td>@i16</td>
+            <td>@i16le</td>
+        </tr>
+        <tr>
+            <td>UInt32</td>
+            <td>@ui32</td>
+            <td>@ui32le</td>
+        </tr>
+        <tr>
+            <td>Int32</td>
+            <td>@i32</td>
+            <td>@i32le</td>
+        </tr>
+        <tr>
+            <td>UInt64</td>
+            <td>@ui64</td>
+            <td>@ui64le</td>
+        </tr>
+        <tr>
+            <td>Int64</td>
+            <td>@i64</td>
+            <td>@i64le</td>
+        </tr>
+        <tr>
+            <td>Float (4-byte)</td>
+            <td>@f32</td>
+            <td>@f32le</td>
+        </tr>
+        <tr>
+            <td>Double (8-byte)</td>
+            <td>@d64</td>
+            <td>@d64le</td>
+        </tr>
+    </tbody>
+</table>
+
+@code {
+    [Parameter]
+    public byte[] Data { get; set; } = Array.Empty<byte>();
+
+    [Parameter]
+    public DataInspectionPosition Position { get; set; } = DataInspectionPosition.Right;
+
+    string style = "border-left: 2px solid #7f7f7f;";
+
+    string bin = "N/A";
+    string oct = "N/A";
+    string ui8 = "N/A";
+    string i8 = "N/A";
+    string ui16 = "N/A";
+    string ui16le = "N/A";
+    string i16 = "N/A";
+    string i16le = "N/A";
+    string ui32 = "N/A";
+    string ui32le = "N/A";
+    string i32 = "N/A";
+    string i32le = "N/A";
+    string ui64 = "N/A";
+    string ui64le = "N/A";
+    string i64 = "N/A";
+    string i64le = "N/A";
+    string f32 = "N/A";
+    string f32le = "N/A";
+    string d64 = "N/A";
+    string d64le = "N/A";
+
+    protected override void OnInitialized()
+    {
+        switch (Position)
+        {
+            case DataInspectionPosition.Left:
+                style = "border-right: 2px solid #7f7f7f;";
+                break;
+            case DataInspectionPosition.Right:
+                style = "border-left: 2px solid #7f7f7f;";
+                break;
+            case DataInspectionPosition.Top:
+                style = "border-bottom: 2px solid #7f7f7f;";
+                break;
+            case DataInspectionPosition.Bottom:
+                style = "border-top: 2px solid #7f7f7f;";
+                break;
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (Data.Length < 1) return;
+
+        bin = "N/A";
+        oct = "N/A";
+        ui8 = "N/A";
+        i8 = "N/A";
+        ui16 = "N/A";
+        ui16le = "N/A";
+        i16 = "N/A";
+        i16le = "N/A";
+        ui32 = "N/A";
+        ui32le = "N/A";
+        i32 = "N/A";
+        i32le = "N/A";
+        ui64 = "N/A";
+        ui64le = "N/A";
+        i64 = "N/A";
+        i64le = "N/A";
+        f32 = "N/A";
+        f32le = "N/A";
+        d64 = "N/A";
+        d64le = "N/A";
+
+        bin = Convert.ToString(Data[0], 2).PadLeft(8, '0');
+        oct = Convert.ToString(Data[0], 8).PadLeft(3, '0');
+        ui8 = Data[0].ToString();
+        i8 = ((sbyte)Data[0]).ToString();
+        if (Data.Length > 1)
+        {
+            ui16 = BinaryPrimitives.ReadUInt16BigEndian(Data).ToString();
+            ui16le = BinaryPrimitives.ReadUInt16LittleEndian(Data).ToString();
+            i16 = BinaryPrimitives.ReadInt16BigEndian(Data).ToString();
+            i16le = BinaryPrimitives.ReadInt16LittleEndian(Data).ToString();
+            if (Data.Length > 3)
+            {
+                ui32 = BinaryPrimitives.ReadUInt32BigEndian(Data).ToString();
+                ui32le = BinaryPrimitives.ReadUInt32LittleEndian(Data).ToString();
+                i32 = BinaryPrimitives.ReadInt32BigEndian(Data).ToString();
+                i32le = BinaryPrimitives.ReadInt32LittleEndian(Data).ToString();
+                f32 = BinaryPrimitives.ReadSingleBigEndian(Data).ToString();
+                f32le = BinaryPrimitives.ReadSingleLittleEndian(Data).ToString();
+                if (Data.Length > 7)
+                {
+                    ui64 = BinaryPrimitives.ReadUInt64BigEndian(Data).ToString();
+                    ui64le = BinaryPrimitives.ReadUInt64LittleEndian(Data).ToString();
+                    i64 = BinaryPrimitives.ReadInt64BigEndian(Data).ToString();
+                    i64le = BinaryPrimitives.ReadInt64LittleEndian(Data).ToString();
+                    d64 = BinaryPrimitives.ReadDoubleBigEndian(Data).ToString();
+                    d64le = BinaryPrimitives.ReadDoubleLittleEndian(Data).ToString();
+                }
+            }
+        }
+    }
+}

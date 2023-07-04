@@ -10,6 +10,6 @@ A simple Blazor component to display a hex dump of a byte array.
 
 - [x] Area selection
 - [x] Copy to clipboard
-- [ ] Value of selected area
+- [x] Value inspection of selected area
 - [ ] Styling
 - [ ] Editable

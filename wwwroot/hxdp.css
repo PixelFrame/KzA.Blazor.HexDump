@@ -1,12 +1,13 @@
-﻿.hxdp-row {
+﻿.hxdp-row,
+.hxdp-main {
     display: flex;
+    flex-direction: row;
     font-family: 'Cascadia Code', Consolas, 'Courier New', monospace;
     font-size: small;
     overflow: auto;
 }
 
 .hxdp-col-line {
-    flex: 20%;
     padding-right: 7px;
     border-right: 2px solid #7f7f7f;
     text-align: right;
@@ -15,14 +16,12 @@
 }
 
 .hxdp-col-hex {
-    flex: 50%;
     padding: 0 7px 0 7px;
     border-right: 2px solid #7f7f7f;
 }
 
 .hxdp-col-ascii {
     padding: 0 7px 0 7px;
-    flex: 30%;
 }
 
 .hxdp-linenum {
@@ -65,4 +64,16 @@
 
 .hxdp-hover {
     border: 1px solid #7f7f7f;
+}
+
+.hxdp-inspect-table {
+    font-family: 'Cascadia Code', Consolas, 'Courier New', monospace;
+    font-size: small;
+    border-spacing: 7px 0;
+    border-collapse: separate;
+}
+
+.hxdp-inspect-table thead td {
+    font-weight: bold;
+    border-bottom: 1px solid #7f7f7f;
 }
