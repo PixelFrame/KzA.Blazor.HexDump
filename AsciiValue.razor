@@ -3,7 +3,7 @@
 @onmouseout="OnMouseOut"
 @onmousedown="OnMouseDown"
 @onmouseup="OnMouseUp">
-    @AsciiFromByte(Value)
+    @Helper.AsciiFromByte(Value)
 </span>
 
 @code {
@@ -18,15 +18,6 @@
 
     [CascadingParameter]
     public HexDump? Parent { get; set; }
-
-    char AsciiFromByte(byte b)
-    {
-        if (b < 0x21 || b > 0x7E)
-        {
-            return '.';
-        }
-        return (char)b;
-    }
 
     void OnMouseOver(MouseEventArgs args)
     {

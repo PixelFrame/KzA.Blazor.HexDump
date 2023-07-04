@@ -45,4 +45,17 @@
     {
         AsciiValues[Coordinate].Unhighlight();
     }
+
+    public override string ToString()
+    {
+        return string.Join(string.Empty, Data.Select(x => Helper.AsciiFromByte(x)));
+    }
+
+    public string ToString(bool FillUpLine)
+    {
+        var str = this.ToString();
+        if (!FillUpLine) return str;
+        if (str.Length < 16) str += new string(' ', 16 - str.Length);
+        return str;
+    }
 }

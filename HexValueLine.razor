@@ -50,4 +50,17 @@
     {
         HexValues[Coordinate].Unhighlight();
     }
+
+    public override string ToString()
+    {
+        return string.Join(" ", Data.Select(x => x.ToString("X2")));
+    }
+
+    public string ToString(bool FillUpLine)
+    {
+        var str = this.ToString();
+        if (!FillUpLine) return str;
+        if (str.Length < 47) str += new string(' ', 47 - str.Length);
+        return str;
+    }
 }
