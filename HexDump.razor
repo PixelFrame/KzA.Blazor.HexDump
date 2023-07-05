@@ -34,6 +34,7 @@
 {
     [Parameter]
     public byte[] Data { get; set; } = Array.Empty<byte>();
+    int DataId = 0;
 
     [Parameter]
     public bool BlockSelection { get; set; } = true;
@@ -67,7 +68,22 @@
 
     protected override void OnParametersSet()
     {
+        var newDataId = Data.GetHashCode();
+        if (newDataId == DataId)
+            return;
+        DataId = newDataId;
+        SelectedIndices.Clear();
+        LastHoveredHex = (-1, -1);
+        LastHoveredAscii = (-1, -1);
+        StartCoordinate = (-1, -1);
+        StopCoordinate = (-1, -1);
+        SelectedData = Array.Empty<byte>();
         var linecnt = (int)Math.Ceiling(Data.Length / 16.0);
+        if (linecnt < HexValueLines.Count)
+        {
+            HexValueLines.RemoveRange(linecnt, HexValueLines.Count - linecnt);
+            AsciiValueLines.RemoveRange(linecnt, AsciiValueLines.Count - linecnt);
+        }
         LineNumberFragment = new RenderFragment(builder =>
         {
             for (int i = 0; i < linecnt; i++)
@@ -103,6 +119,7 @@
                 builder.CloseComponent();
             }
         });
+        StateHasChanged();
     }
 
     internal void HoverHexValue((int, int) Coordinate)

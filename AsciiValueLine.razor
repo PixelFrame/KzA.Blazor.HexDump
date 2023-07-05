@@ -26,6 +26,14 @@
     [Parameter]
     public HexDump? Parent { get; set; }
 
+    protected override void OnParametersSet()
+    {
+        if (Data.Length < AsciiValues.Count)
+        {
+            AsciiValues.RemoveRange(Data.Length, AsciiValues.Count - Data.Length);
+        }
+    }
+
     internal void HoverAsciiValue(int Coordinate)
     {
         AsciiValues[Coordinate].Hover();

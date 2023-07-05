@@ -30,6 +30,13 @@
     [Parameter]
     public HexDump? Parent { get; set; }
 
+    protected override void OnParametersSet()
+    {
+        if (Data.Length < HexValues.Count)
+        {
+            HexValues.RemoveRange(Data.Length, HexValues.Count - Data.Length);
+        }
+    }
 
     internal void HoverHexValue(int Coordinate)
     {
