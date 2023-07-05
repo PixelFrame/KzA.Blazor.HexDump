@@ -181,6 +181,8 @@
             {
                 for (var x = X1; x <= X2; ++x)
                 {
+                    var idx = y * 16 + x;
+                    if (idx >= Data.Length) continue;
                     SelectedIndices.Add(y * 16 + x);
                 }
             }
