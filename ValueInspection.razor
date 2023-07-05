@@ -1,6 +1,6 @@
 ﻿@using System.Buffers.Binary
 
-<table class="hxdp-inspect-table" style="@style">
+<table class="hxdp-inspect-table">
     <thead>
         <tr>
             <th>Data Inspect</th>
@@ -78,8 +78,6 @@
     [Parameter]
     public DataInspectionPosition Position { get; set; } = DataInspectionPosition.Right;
 
-    string style = "border-left: 2px solid #7f7f7f;";
-
     string bin = "N/A";
     string oct = "N/A";
     string ui8 = "N/A";
@@ -100,25 +98,6 @@
     string f32le = "N/A";
     string d64 = "N/A";
     string d64le = "N/A";
-
-    protected override void OnInitialized()
-    {
-        switch (Position)
-        {
-            case DataInspectionPosition.Left:
-                style = "border-right: 2px solid #7f7f7f;";
-                break;
-            case DataInspectionPosition.Right:
-                style = "border-left: 2px solid #7f7f7f;";
-                break;
-            case DataInspectionPosition.Top:
-                style = "border-bottom: 2px solid #7f7f7f;";
-                break;
-            case DataInspectionPosition.Bottom:
-                style = "border-top: 2px solid #7f7f7f;";
-                break;
-        }
-    }
 
     protected override void OnParametersSet()
     {
