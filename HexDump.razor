@@ -160,8 +160,7 @@
         {
             StopCoordinate = ClickedItemType == 1 ? LastHoveredHex : LastHoveredAscii;
         }
-        CalcPoints(StartCoordinate, StopCoordinate);
-        await UpdateSelection();
+        await CalcPoints(StartCoordinate, StopCoordinate);
     }
 
     private async Task OnMouseMove(MouseEventArgs args)
@@ -173,14 +172,13 @@
                 StartCoordinate = ClickedItemType == 1 ? LastHoveredHex : LastHoveredAscii;
             }
             StopCoordinate = ClickedItemType == 1 ? LastHoveredHex : LastHoveredAscii;
-            CalcPoints(StartCoordinate, StopCoordinate);
-            await UpdateSelection();
+            await CalcPoints(StartCoordinate, StopCoordinate);
         }
     }
 
-    private void CalcPoints((int, int) CoordinateA, (int, int) CoordinateB)
+    private async Task CalcPoints((int, int) CoordinateA, (int, int) CoordinateB)
     {
-        SelectedIndices.Clear();
+        var newSelection = new List<int>();
 
         if (BlockSelection)
         {
@@ -195,7 +193,7 @@
                 {
                     var idx = y * 16 + x;
                     if (idx >= DataDisplayLength) continue;
-                    SelectedIndices.Add(y * 16 + x);
+                    newSelection.Add(y * 16 + x);
                 }
             }
         }
@@ -211,29 +209,24 @@
             }
             for (var idx = IDX1; idx <= IDX2; ++idx)
             {
-                SelectedIndices.Add(idx);
+                newSelection.Add(idx);
             }
         }
-    }
-
-    private async Task UpdateSelection()
-    {
-        for (var idx = 0; idx < DisplayLastIndex; ++idx)
+        foreach(var idx in SelectedIndices.Except(newSelection))
         {
-            if (SelectedIndices.Contains(idx))
-            {
-                HexValueLines[idx / 16].HighlightHexValue(idx % 16);
-                AsciiValueLines[idx / 16].HighlightAsciiValue(idx % 16);
-            }
-            else
-            {
-                HexValueLines[idx / 16].UnhighlightHexValue(idx % 16);
-                AsciiValueLines[idx / 16].UnhighlightAsciiValue(idx % 16);
-            }
+            HexValueLines[idx / 16].UnhighlightHexValue(idx % 16);
+            AsciiValueLines[idx / 16].UnhighlightAsciiValue(idx % 16);
         }
+        foreach(var idx in newSelection.Except(SelectedIndices))
+        {
+            HexValueLines[idx / 16].HighlightHexValue(idx % 16);
+            AsciiValueLines[idx / 16].HighlightAsciiValue(idx % 16);
+        }
+        SelectedIndices = newSelection;
         SelectedData = SelectedIndices.Select(v => Data[DataDisplayPosition + v]).ToArray();
         await InvokeAsync(StateHasChanged);
     }
+
 
     public override string ToString()
     {
