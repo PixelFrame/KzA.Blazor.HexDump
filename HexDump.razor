@@ -48,6 +48,8 @@
     [Parameter]
     public int DataDisplayLength { get; set; } = 256;
 
+    (bool, DataInspectionPosition, int, int) LastState;
+
     int DisplayLastIndex => Math.Min(Data.Length - DataDisplayPosition, DataDisplayLength);
 
     RenderFragment LineNumberFragment = @<br>;
@@ -74,18 +76,27 @@
     List<int> SelectedIndices = new();
     byte[] SelectedData = Array.Empty<byte>();
 
+    protected override void OnInitialized()
+    {
+        LastState = (BlockSelection, this.DataInspectionPosition, DataDisplayPosition, DataDisplayLength);
+    }
+
     protected override void OnParametersSet()
     {
+        if (LastState.Item1 != BlockSelection
+        || LastState.Item2 != this.DataInspectionPosition
+        || LastState.Item3 != DataDisplayPosition
+        || LastState.Item4 != DataDisplayLength)
+        {
+            ClearSelection();
+            LastState = (BlockSelection, this.DataInspectionPosition, DataDisplayPosition, DataDisplayLength);
+        }
         var newDataId = Data.GetHashCode();
         if (newDataId == DataId)
             return;
         DataId = newDataId;
-        SelectedIndices.Clear();
-        LastHoveredHex   = (-1, -1);
-        LastHoveredAscii = (-1, -1);
-        StartCoordinate  = (-1, -1);
-        StopCoordinate   = (-1, -1);
-        SelectedData = Array.Empty<byte>();
+        ClearSelection();
+
         var linecnt = (int)Math.Ceiling(DataDisplayLength / 16.0);
 
         // When re-rendering the lines, only if the line count is smaller than the old value, the component object will be removed
@@ -212,12 +223,12 @@
                 newSelection.Add(idx);
             }
         }
-        foreach(var idx in SelectedIndices.Except(newSelection))
+        foreach (var idx in SelectedIndices.Except(newSelection))
         {
             HexValueLines[idx / 16].UnhighlightHexValue(idx % 16);
             AsciiValueLines[idx / 16].UnhighlightAsciiValue(idx % 16);
         }
-        foreach(var idx in newSelection.Except(SelectedIndices))
+        foreach (var idx in newSelection.Except(SelectedIndices))
         {
             HexValueLines[idx / 16].HighlightHexValue(idx % 16);
             AsciiValueLines[idx / 16].HighlightAsciiValue(idx % 16);
@@ -227,6 +238,22 @@
         await InvokeAsync(StateHasChanged);
     }
 
+    private void ClearSelection()
+    {
+        LastHoveredHex = (-1, -1);
+        LastHoveredAscii = (-1, -1);
+        StartCoordinate = (-1, -1);
+        StopCoordinate = (-1, -1);
+
+        foreach (var idx in SelectedIndices)
+        {
+            HexValueLines[idx / 16].UnhighlightHexValue(idx % 16);
+            AsciiValueLines[idx / 16].UnhighlightAsciiValue(idx % 16);
+        }
+        SelectedIndices.Clear();
+        SelectedData = Array.Empty<byte>();
+        StateHasChanged();
+    }
 
     public override string ToString()
     {
