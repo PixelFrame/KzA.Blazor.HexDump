@@ -189,6 +189,8 @@
 
     private async Task CalcPoints((int, int) CoordinateA, (int, int) CoordinateB)
     {
+        if (CoordinateA.Item1 < 0 || CoordinateA.Item2 < 0 || CoordinateB.Item1 < 0 || CoordinateB.Item2 < 0)
+            return;
         var newSelection = new List<int>();
 
         if (BlockSelection)
